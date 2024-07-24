@@ -8,6 +8,7 @@ const nodemailer = require("nodemailer")
 const crypto = require("crypto")
 const bcrypt = require("bcryptjs")
 const fs = require("fs")
+const path = require("path")
 require("dotenv").config({ path: "./.env" })
 
 const port = process.env.PORT || 8020
@@ -934,8 +935,10 @@ const getAccount = handleCallback(async (req, res) => {
 
 // --- ROUTES ---
 
-app.get("/", (req, res) =>
-  res.status(200).sendFile("docs.html", { root: __dirname })
+app.get("/", async (req, res) =>
+  res
+    .status(200)
+    .sendFile(await fs.readFile(process.cwd() + "docs.html", "utf8"))
 )
 app.post("/signin", signin)
 app.get("/verify/:token", verify)
