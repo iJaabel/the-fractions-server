@@ -938,7 +938,7 @@ const getAccount = handleCallback(async (req, res) => {
 app.get(
   "/",
   handleCallback(async (req, res) => {
-    const docs = await fs.readFile(process.cwd() + "/docs.html", "utf8")
+    const docs = await fs.readFileSync(process.cwd() + "/docs.html", "utf8")
     if (docs) {
       return res
         .status(200)
