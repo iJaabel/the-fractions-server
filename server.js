@@ -132,11 +132,7 @@ const sendVerificationEmail = async (req, res) => {
     req.body.email,
     "\nreq.body.email\n",
     req.body.verificationToken,
-    "\nreq.body.verificationToken\n",
-    req.body.password,
-    "\nreq.body.password\n",
-    req.body.name,
-    "\nreq.body.name"
+    "\nreq.body.verificationToken\n"
   )
 
   const smtpConfig = {
@@ -385,19 +381,24 @@ const sendVerificationEmail = async (req, res) => {
                         >
                           <tbody>
                             <tr>
-                              <td style="width: 64px">
-                                <img
-                                  height="auto"
-                                  src="https://i.imgur.com/KO1vcE9.png"
-                                  style="
-                                    border: 0;
-                                    display: block;
-                                    outline: none;
-                                    text-decoration: none;
-                                    width: 100%;
-                                  "
-                                  width="64"
-                                />
+                              <td style="width: 132px">
+                                <a
+                                  href="https://mathvisuals.netlify.app/"
+                                  target="_blank"
+                                >
+                                  <img
+                                    height="auto"
+                                    src="https://i.imgur.com/mb6DJVi.png"
+                                    style="
+                                      border: 0;
+                                      display: block;
+                                      outline: none;
+                                      text-decoration: none;
+                                      width: 100%;
+                                    "
+                                    width="64"
+                                  />
+                                </a>
                               </td>
                             </tr>
                           </tbody>
@@ -447,7 +448,8 @@ const sendVerificationEmail = async (req, res) => {
                             color: #555;
                           "
                         >
-Hey ${req.body.name},                        </div>
+                          Hey ${req.body.name},
+                        </div>
                       </td>
                     </tr>
                     <tr>
@@ -468,7 +470,9 @@ Hey ${req.body.name},                        </div>
                             color: #555;
                           "
                         >
-We’re dedicated to keeping your account safe on Visual Fraction Library. Recently, we noticed an attempt to access your account from a new device. To ensure it’s you and maintain the highest security standards, we need your confirmation.
+                          We’re dedicated to keeping your account safe on Visual
+                          Fraction Library. To ensure it’s you and maintain the
+                          highest security standards, we need your confirmation.
                         </div>
                       </td>
                     </tr>
@@ -492,7 +496,7 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                           "
                         >
                           Please validate your email address in order to get
-                          started using Visual Fraction Library. Verify the new device:
+                          started using Visual Fraction Library.
                         </div>
                       </td>
                     </tr>
@@ -518,7 +522,7 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                           <tr>
                             <td
                               align="center"
-                              bgcolor="#2F67F6"
+                              bgcolor="#52a4b0"
                               role="presentation"
                               style="
                                 border: none;
@@ -530,12 +534,11 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                               valign="middle"
                             >
                               <a
-                             
                                 href="${process.env.BASE_URL}/verify?token=${req.verificationToken}"
                                 rel="noreferrer noopener"
                                 target="_blank"
                                 style="
-                                  background: #2f67f6;
+                                  background: #52a4b0;
                                   color: #ffffff;
                                   font-family: 'Helvetica Neue', Arial,
                                     sans-serif;
@@ -546,7 +549,6 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                                   text-decoration: none;
                                   text-transform: none;
                                 "
-
                               >
                                 Confirm Your Email
                               </a>
@@ -599,7 +601,7 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                         >
                           <a
                             href="${process.env.BASE_URL}/verify?token=${req.body.verificationToken}"
-                            style="color: #2f67f6"
+                            style="color: #52a4b0"
                             >https://www.visualfractionlibrary.com/verify</a
                           >
                         </div>
@@ -623,8 +625,7 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                             text-align: center;
                             color: #555;
                           "
-                        >                      
-                        </div>
+                        ></div>
                       </td>
                     </tr>
                     <tr>
@@ -645,16 +646,19 @@ We’re dedicated to keeping your account safe on Visual Fraction Library. Recen
                             color: #555;
                           "
                         >
-                          If you did not initiate this action, please contact us immediately<br /> at 
+                          If you did not initiate this action, please contact us
+                          immediately<br />
+                          at
                           <a
                             href="mailto:support@visualfractionlibrary.com"
-                            style="color: #2f67f6"
+                            style="color: #52a4b0"
                             >support@visualfractionlibrary.com</a
                           >
                           <br />
-                          Thank you for your vigilance in securing your account. Your cooperation helps us create a safer environment for all users. Please send and feedback or bug information to the same email address.above
-
-Best,
+                          Thank you for your vigilance in securing your account.
+                          Your cooperation helps us create a safer environment
+                          for all users. Please send and feedback or bug
+                          information to the support email.
                         </div>
                       </td>
                     </tr>
@@ -779,7 +783,9 @@ Best,
                                     color: #575757;
                                   "
                                 >
-                                  <a href="https://youtu.be/dQw4w9WgXcQ?si=cZ5erEtkwrGM3u65" style="color: #575757"
+                                  <a
+                                    href="https://youtu.be/dQw4w9WgXcQ?si=cZ5erEtkwrGM3u65"
+                                    style="color: #575757"
                                     >Unsubscribe</a
                                   >
                                   from our emails
