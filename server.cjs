@@ -935,12 +935,23 @@ const getAccount = handleCallback(async (req, res) => {
 
 // --- ROUTES ---
 
-app.get("/", async (req, res) => {
-  const docs = await fs.readFile(process.cwd() + "docs.html", "utf8")
-  return res
-    .status(200)
-    .sendFile(path.join(process.cwd(), "docs.html"), { docs })
-})
+app.get(
+  "/",
+  handleCallback(async (req, res) => {
+    const docs = await fs.readFile(process.cwd() + "docs.html", "utf8")
+    if (docs) {
+      return res
+        .status(200)
+        .sendFile(path.join(process.cwd(), "docs.html"), { docs })
+    }
+
+    return res.status(404).json({
+      success: false,
+      message:
+        "Docs not found. Probably under construction. Check back later. You may continue using api without the docs",
+    })
+  })
+)
 app.post("/signin", signin)
 app.get("/verify/:token", verify)
 app.post("/account/create", createAccount)
