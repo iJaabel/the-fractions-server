@@ -7,8 +7,6 @@ const Schema = mongoose.Schema
 const nodemailer = require("nodemailer")
 const crypto = require("crypto")
 const bcrypt = require("bcryptjs")
-const fs = require("fs")
-const docs = fs.readFileSync("./docs.html", "utf8")
 require("dotenv").config({ path: "./.env" })
 
 const port = process.env.PORT || 8020
