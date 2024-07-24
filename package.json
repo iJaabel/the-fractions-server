@@ -16,6 +16,7 @@
     "mongodb": "^6.5.0",
     "mongoose": "^8.2.2",
     "nodemailer": "^6.9.14",
+    "openssl-nodejs": "^1.0.5",
     "serverless-http": "^3.2.0",
     "zod": "^3.22.4"
   },
