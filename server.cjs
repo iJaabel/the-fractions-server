@@ -935,11 +935,12 @@ const getAccount = handleCallback(async (req, res) => {
 
 // --- ROUTES ---
 
-app.get("/", async (req, res) =>
-  res
+app.get("/", async (req, res) => {
+  const docs = await fs.readFile(process.cwd() + "docs.html", "utf8")
+  return res
     .status(200)
-    .sendFile(await fs.readFile(process.cwd() + "docs.html", "utf8"))
-)
+    .sendFile(path.join(process.cwd(), "docs.html"), { docs })
+})
 app.post("/signin", signin)
 app.get("/verify/:token", verify)
 app.post("/account/create", createAccount)
