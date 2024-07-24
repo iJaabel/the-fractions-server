@@ -938,14 +938,14 @@ const getAccount = handleCallback(async (req, res) => {
 app.get(
   "/",
   handleCallback(async (req, res) => {
-    const docs = await fs.readFile(process.cwd() + "docs.html", "utf8")
+    const docs = await fs.readFile(process.cwd() + "/docs.html", "utf8")
     if (docs) {
       return res
         .status(200)
         .sendFile(path.join(process.cwd(), "docs.html"), { docs })
     }
 
-    return res.status(404).json({
+    return res.status(201).json({
       success: false,
       message:
         "Docs not found. Probably under construction. Check back later. You may continue using api without the docs",
