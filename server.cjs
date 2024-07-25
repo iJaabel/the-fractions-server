@@ -80,31 +80,31 @@ const handleCallback = (callback) => async (req, res, next) => {
 
 const createAccount = handleCallback(async (req, res) => {
   if (!req.body.email || !req.body.password || !req.body || !req.body.name) {
-    throw new Error("Missing name, email or password")
+    return res.status(404).json("Missing name, email or password")
   }
 
   if (req.body.password.length < 6) {
-    throw new Error("Password must be at least 6 characters")
+    return res.status(404).json("Password must be at least 6 characters")
   }
+  const doesAccoutExist = await Account.findOne({ email: req.body.email })
 
   if (!emailValidation.test(req.body.email)) {
-    throw new Error("Invalid email")
+    return res.status(404).json("Invalid email")
   }
 
   if (!passwordValidation.test(req.body.password)) {
-    throw new Error("Invalid password")
+    return res.status(404).json("Invalid password")
   }
 
-  const doesAccoutExist = await Account.findOne({ email: req.body.email })
   if (doesAccoutExist) {
-    throw new Error("Account already exists")
+    return res.status(404).json("Account already exists")
   }
 
   if (!doesAccoutExist) {
+    const verificationToken = await crypto.randomBytes(20).toString("hex")
     const salt = await bcrypt.genSalt(10)
     const hashedEmail = await bcrypt.hash(req.body.email, salt)
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
-    const verificationToken = await crypto.randomBytes(20).toString("hex")
 
     const account = await new Account({
       name: req.body.name,
@@ -113,19 +113,31 @@ const createAccount = handleCallback(async (req, res) => {
       verificationToken: verificationToken,
     })
 
-    await account.save()
+    console.log("account\n", account)
+    console.log("verificationToken in create\n", verificationToken)
+    if (!account) return res.status(404).json("Account not created")
+    if (!verificationToken) {
+      return res.status(404).json("Verification token not created")
+    }
 
-    await sendVerificationEmail({ ...req }, res)
+    if (account) {
+      await account.save()
+      await sendVerificationEmail(
+        { ...req, body: { ...req.body, verificationToken } },
+        res
+      )
 
-    return res.status(201).json({
-      success: true,
-      message: "Account created",
-    })
+      return res.status(201).json({
+        success: true,
+        message: "Account created",
+      })
+    }
   }
 })
 
 const sendVerificationEmail = async (req, res) => {
   const { verificationToken } = req.body
+  console.log("token in sendEmail\n", verificationToken)
 
   const smtpConfig = {
     host: process.env.SMTPSERVER,
@@ -526,7 +538,7 @@ const sendVerificationEmail = async (req, res) => {
                               valign="middle"
                             >
                               <a
-                                href="${process.env.BASE_URL}/verify?token=${req.verificationToken}"
+                                href="${process.env.BASE_URL}/verify/${verificationToken}"
                                 rel="noreferrer noopener"
                                 target="_blank"
                                 style="
@@ -592,7 +604,7 @@ const sendVerificationEmail = async (req, res) => {
                           "
                         >
                           <a
-                            href="${process.env.BASE_URL}/verify?token=${verificationToken}"
+                            href="${process.env.BASE_URL}/verify/${verificationToken}"
                             style="color: #52a4b0"
                             >https://www.visualfractionlibrary.com/verify</a
                           >
@@ -822,10 +834,11 @@ const sendVerificationEmail = async (req, res) => {
 }
 
 const verify = async (req, res) => {
-  const { token } = req.query
+  const { token } = req.params
+  console.log("token in verify\n", token, "\nreq.params\n", req.params)
 
   if (!token) {
-    throw new Error("Missing token")
+    return res.status(404).json("Missing token")
   }
 
   const updatedAccount = await Account.findOneAndUpdate(
@@ -833,12 +846,14 @@ const verify = async (req, res) => {
     { verified: true, verificationToken: undefined }
   )
 
+  console.log("updatedAccount\n", updatedAccount)
+
   if (!updatedAccount) {
-    throw new Error("Invalid token")
+    return res.status(404).json("Invalid token")
   }
 
   if (!updatedAccount.verified) {
-    throw new Error("Account not verified")
+    return res.status(404).json("Account not verified")
   }
 
   updatedAccount.email = undefined
@@ -849,15 +864,15 @@ const verify = async (req, res) => {
 
 const signin = async (req, res) => {
   if (!req.body.email || !req.body.password) {
-    throw new Error("Missing email or password")
+    return res.status(404).json("Missing email or password")
   }
 
   if (!emailValidation.test(req.body.email)) {
-    throw new Error("Invalid email")
+    return res.status(404).json("Invalid email")
   }
 
   if (!passwordValidation.test(req.body.password)) {
-    throw new Error("Invalid password")
+    return res.status(404).json("Invalid password")
   }
 
   let activeAccount = await Account.findOne({ email: req.body.email })
@@ -897,19 +912,19 @@ const updateAccount = handleCallback(async (req, res, next) => {
       return res.status(403).json("you can only update your account!")
     }
   }
-  throw new Error("Account not found")
+  return res.status(404).json("Account not found")
 })
 
 const deleteAccount = handleCallback(async (req, res) => {
   const { id } = req.params
-  if (!id) throw new Error("Account not found")
+  if (!id) return res.status(404).json("Account not found")
 
   if (req.body.id === req.params.id || req.body.isAdmin) {
     const account = await Account.findById(id)
-    if (!account) throw new Error("Account not found")
+    if (!account) return res.status(404).json("Account not found")
 
     const deleted = await Account.findByIdAndDelete(id)
-    if (!deleted) throw new Error("Account not found")
+    if (!deleted) return res.status(404).json("Account not found")
 
     if (deleted) {
       deleted.password = undefined
@@ -919,18 +934,18 @@ const deleteAccount = handleCallback(async (req, res) => {
         .json({ success: true, data: deleted, Message: "Account deleted" })
     }
   }
-  throw new Error("Account not found")
+  return res.status(404).json("Account not found")
 })
 
 const getAccount = handleCallback(async (req, res) => {
-  if (!req.params.id) throw new Error("Account not found")
+  if (!req.params.id) return res.status(404).json("Account not found")
 
   if (req.body.id === req.params.id && req.body.isAdmin) {
     const account = await Account.findById(req.params.id)
-    if (!account) throw new Error("Account not found")
+    if (!account) return res.status(404).json("Account not found")
     return res.status(200).json({ success: true, data: account })
   }
-  throw new Error("Account not found")
+  return res.status(404).json("Account not found")
 })
 
 // --- ROUTES ---
@@ -952,6 +967,7 @@ app.get(
     })
   })
 )
+
 app.post("/signin", signin)
 app.get("/verify/:token", verify)
 app.post("/account/create", createAccount)
