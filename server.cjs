@@ -86,7 +86,6 @@ const createAccount = handleCallback(async (req, res) => {
   if (req.body.password.length < 6) {
     return res.status(404).json("Password must be at least 6 characters")
   }
-  const doesAccoutExist = await Account.findOne({ email: req.body.email })
 
   if (!emailValidation.test(req.body.email)) {
     return res.status(404).json("Invalid email")
@@ -96,11 +95,18 @@ const createAccount = handleCallback(async (req, res) => {
     return res.status(404).json("Invalid password")
   }
 
-  if (doesAccoutExist) {
+  const checkForAcct = await Account.findOne({ name: req.body.name })
+  const doesAccountExist = await bcrypt.compare(
+    req.body.email,
+    checkForAcct.email
+  )
+
+  console.log("doesAccountExist\n", doesAccountExist)
+
+  if (doesAccountExist) {
     return res.status(404).json("Account already exists")
   }
-
-  if (!doesAccoutExist) {
+  if (!doesAccountExist) {
     const verificationToken = await crypto.randomBytes(20).toString("hex")
     const salt = await bcrypt.genSalt(10)
     const hashedEmail = await bcrypt.hash(req.body.email, salt)
@@ -112,28 +118,29 @@ const createAccount = handleCallback(async (req, res) => {
       password: hashedPassword,
       verificationToken: verificationToken,
     })
-    setTimeout(() => {
+
+    setTimeout(async () => {
       console.log("account\n", account)
       console.log("verificationToken in create\n", verificationToken)
-    }, 3000)
-    if (!account) return res.status(404).json("Account not created")
-    if (!verificationToken) {
-      return res.status(404).json("Verification token not created")
-    }
+      if (!account) return res.status(404).json("Account not created")
+      if (!verificationToken) {
+        return res.status(404).json("Verification token not created")
+      }
 
-    if (account) {
-      await account.save()
-      await sendVerificationEmail(
-        { ...req, body: { ...req.body, verificationToken } },
-        res
-      )
-      setTimeout(() => {
-        return res.status(201).json({
-          success: true,
-          message: "Account created",
-        })
-      }, 250)
-    }
+      if (account) {
+        await account.save()
+        await sendVerificationEmail(
+          { ...req, body: { ...req.body, verificationToken } },
+          res
+        )
+        setTimeout(() => {
+          return res.status(201).json({
+            success: true,
+            message: "Account created",
+          })
+        }, 500)
+      }
+    }, 500)
   }
 })
 
@@ -847,6 +854,7 @@ const verify = async (req, res) => {
     { verificationToken: token },
     { verified: true, verificationToken: undefined }
   )
+
   setTimeout(() => {
     console.log("updatedAccount\n", updatedAccount)
 
@@ -860,10 +868,9 @@ const verify = async (req, res) => {
 
     updatedAccount.email = undefined
     updatedAccount.password = undefined
-    console.log("middle of verify")
+
     return res.status(200).json({ success: true, data: updatedAccount })
   }, 3000)
-  console.log("end of verify")
 }
 
 const signin = async (req, res) => {
