@@ -112,9 +112,10 @@ const createAccount = handleCallback(async (req, res) => {
       password: hashedPassword,
       verificationToken: verificationToken,
     })
-
-    console.log("account\n", account)
-    console.log("verificationToken in create\n", verificationToken)
+    setTimeout(() => {
+      console.log("account\n", account)
+      console.log("verificationToken in create\n", verificationToken)
+    }, 3000)
     if (!account) return res.status(404).json("Account not created")
     if (!verificationToken) {
       return res.status(404).json("Verification token not created")
@@ -126,11 +127,12 @@ const createAccount = handleCallback(async (req, res) => {
         { ...req, body: { ...req.body, verificationToken } },
         res
       )
-
-      return res.status(201).json({
-        success: true,
-        message: "Account created",
-      })
+      setTimeout(() => {
+        return res.status(201).json({
+          success: true,
+          message: "Account created",
+        })
+      }, 250)
     }
   }
 })
@@ -845,21 +847,23 @@ const verify = async (req, res) => {
     { verificationToken: token },
     { verified: true, verificationToken: undefined }
   )
+  setTimeout(() => {
+    console.log("updatedAccount\n", updatedAccount)
 
-  console.log("updatedAccount\n", updatedAccount)
+    if (!updatedAccount) {
+      return res.status(404).json("Invalid token")
+    }
 
-  if (!updatedAccount) {
-    return res.status(404).json("Invalid token")
-  }
+    if (!updatedAccount.verified) {
+      return res.status(404).json("Account not verified")
+    }
 
-  if (!updatedAccount.verified) {
-    return res.status(404).json("Account not verified")
-  }
-
-  updatedAccount.email = undefined
-  updatedAccount.password = undefined
-
-  return res.status(200).json({ success: true, data: updatedAccount })
+    updatedAccount.email = undefined
+    updatedAccount.password = undefined
+    console.log("middle of verify")
+    return res.status(200).json({ success: true, data: updatedAccount })
+  }, 3000)
+  console.log("end of verify")
 }
 
 const signin = async (req, res) => {
